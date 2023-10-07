@@ -1,7 +1,15 @@
 from socket import *
+import ssl
+import base64
+from time import sleep
+from getpass import getpass
 
 msg = "\r\n I love computer networks!"
 endmsg = "\r\n.\r\n"
+
+user = input("Enter gmail account: ")
+pw = getpass()
+sleep(1)
 
 # Choose a mail server (e.g. Google mail server) and call it mailserver
 mailserver = ("smtp.gmail.com", 587)
@@ -27,8 +35,37 @@ print(recv1)
 if recv1[:3] != '250':
     print('250 reply not received from server.')
 
+command = "STARTTLS\r\n"
+clientSocket.send(command.encode())
+recvdiscard = clientSocket.recv(1024)
+print(recvdiscard)
+
+clientSocket = ssl.wrap_socket(clientSocket)
+
+clientSocket.send(heloCommand.encode())
+recv1 = clientSocket.recv(1024).decode()
+print(recv1)
+
+#Send AUTH first
+authMesg = 'AUTH LOGIN\r\n'
+crlfMesg = '\r\n'
+print(authMesg)
+clientSocket.send(authMesg.encode())
+recv1 = clientSocket.recv(1024)
+print(str(recv1))
+user64 = base64.b64encode(user.encode())
+pass64 = base64.b64encode(pw.encode())
+clientSocket.send(user64)
+clientSocket.send(crlfMesg.encode())
+recv1 = clientSocket.recv(1024)
+print(str(recv1))
+clientSocket.send(pass64)
+clientSocket.send(crlfMesg.encode())
+recv1 = clientSocket.recv(1024)
+print(str(recv1))
+
 # Send MAIL FROM command and print server response.
-mailFromCommand = 'MAIL FROM starphys@gmail.com\r\n'
+mailFromCommand = 'MAIL FROM: <' + user + '>\r\n'
 clientSocket.send(mailFromCommand.encode())
 recv1 = clientSocket.recv(1024).decode()
 print(recv1)
@@ -37,7 +74,7 @@ if recv1[:3] != '250':
     print('250 reply not received from server.')
 
 # Send RCPT TO command and print server response.
-rcptToCommand = 'RCPT TO starphys@gmail.com\r\n'
+rcptToCommand = 'RCPT TO: <' + user + '>\r\n'
 clientSocket.send(rcptToCommand.encode())
 recv1 = clientSocket.recv(1024).decode()
 print(recv1)
