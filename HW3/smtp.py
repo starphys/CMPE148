@@ -49,20 +49,22 @@ print(recv1)
 #Send AUTH first
 authMesg = 'AUTH LOGIN\r\n'
 crlfMesg = '\r\n'
-print(authMesg)
+
 clientSocket.send(authMesg.encode())
-recv1 = clientSocket.recv(1024)
-print(str(recv1))
+recv1 = clientSocket.recv(1024).decode()
+print(recv1)
+
 user64 = base64.b64encode(user.encode())
 pass64 = base64.b64encode(pw.encode())
 clientSocket.send(user64)
 clientSocket.send(crlfMesg.encode())
-recv1 = clientSocket.recv(1024)
-print(str(recv1))
+recv1 = clientSocket.recv(1024).decode()
+print(recv1)
+
 clientSocket.send(pass64)
 clientSocket.send(crlfMesg.encode())
-recv1 = clientSocket.recv(1024)
-print(str(recv1))
+recv1 = clientSocket.recv(1024).decode()
+print(recv1)
 
 # Send MAIL FROM command and print server response.
 mailFromCommand = 'MAIL FROM: <' + user + '>\r\n'
